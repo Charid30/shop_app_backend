@@ -4,7 +4,7 @@
 const userService = require('../services/user.service');
 
 // Controller to create a new user_admin
-async function createUserController(req, res) {
+async function createUser(req, res) {
     try {
         const userData = req.body;
         // Basic validation
@@ -24,7 +24,7 @@ async function createUserController(req, res) {
 }
 
 // Controller to modify an existing user_admin
-async function modifyUserController(req, res) {
+async function modifyUser(req, res) {
     try {
         const id = req.params.id; // The ID of the user to modify
         const userData = req.body;
@@ -49,7 +49,7 @@ async function modifyUserController(req, res) {
 }
 
 // Controller to delete a user_admin
-async function deleteUserController(req, res) {
+async function deleteUser(req, res) {
     try {
         const id = req.params.id; // The ID of the user to delete
         const affectedRows = await userService.deleteUser(id);
@@ -68,7 +68,7 @@ async function deleteUserController(req, res) {
 }
 
 // Controller to get a user_admin by ID
-async function getUserByIdController(req, res) {
+async function getUserById(req, res) {
     try {
         const id = req.params.id; // The ID of the user to retrieve
         const user = await userService.getUserById(id);
@@ -83,7 +83,7 @@ async function getUserByIdController(req, res) {
 }
 
 // Controller to get all user_admins
-async function getAllUsersController(req, res) {
+async function getAllUsers(req, res) {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
@@ -94,7 +94,7 @@ async function getAllUsersController(req, res) {
 }
 
 // Controller to get all users with pagination
-async function getAllUsersWithPaginationController(req, res) {
+async function getAllUsersWithPagination(req, res) {
     try {
         const page = parseInt(req.query.page) || 1; // Current page number
         const limit = parseInt(req.query.limit) || 10; // Number of users per page
@@ -109,7 +109,7 @@ async function getAllUsersWithPaginationController(req, res) {
 }
 
 // Controller to authenticate a user_admin
-async function authenticateUserController(req, res) {
+async function authenticateUser(req, res) {
     try {
         const { username_admin, password_admin } = req.body;
         if (!username_admin || !password_admin) {
@@ -132,12 +132,12 @@ async function authenticateUserController(req, res) {
 
 // Export the user controller functions
 module.exports = {
-    authenticateUserController,
-    createUserController,
-    modifyUserController,
-    deleteUserController,
-    getUserByIdController,
-    getAllUsersController,
-    getAllUsersWithPaginationController
+    authenticateUser,
+    createUser,
+    modifyUser,
+    deleteUser,
+    getUserById,
+    getAllUsers,
+    getAllUsersWithPagination
 };
 // It is recommended to keep sensitive information out of version control.

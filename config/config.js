@@ -16,17 +16,17 @@ const admindb = mysql.createConnection({
 });
 
 // Second database connection
-const usersdb = mysql.createConnection({
-  host: process.env.PG_HOST,
-  user: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DATABASE
-});
+// const usersdb = mysql.createConnection({
+//   host: process.env.PG_HOST,
+//   user: process.env.PG_USER,
+//   password: process.env.PG_PASSWORD,
+//   database: process.env.PG_DATABASE
+// });
 
 // Export the connections for use in other parts of the application
 module.exports = {
   admindb,
-  usersdb,
+//   usersdb,
 };
 
 // Try first database connection
@@ -39,13 +39,13 @@ admindb.connect((err) => {
 });
 
 // Try second database connection
-usersdb.connect((err) => {
-  if (err) {
-    console.error('Error connecting to users database:', err);
-  } else {
-    console.log('Connected to users database');
-  }
-});
+// usersdb.connect((err) => {
+//   if (err) {
+//     console.error('Error connecting to users database:', err);
+//   } else {
+//     console.log('Connected to users database');
+//   }
+// });
 
 // Environment variables for MySQL
 // These variables should be set in a .env file or through the environment directly
