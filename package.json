@@ -1,0 +1,29 @@
+{
+  "name": "shop_app_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "BATIONO Ulrich Rachid Kévin",
+  "email": "bationor10@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "",
+    "license": "ISC"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cord": "^1.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jw-paginate": "^1.0.4",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.3",
+    "nodemon": "^3.1.10",
+    "rootpath": "^0.1.2"
+  }
+}
