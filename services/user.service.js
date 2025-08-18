@@ -53,7 +53,7 @@ async function deleteUser(id) {
     }
 }
 
-// Function to get a user by ID (not used in the current controller)
+// Function to get a user by ID
 async function getUserById(id) {
     const query = `SELECT * FROM user_admin WHERE id = ? AND del = 0`;
     try {
@@ -64,7 +64,7 @@ async function getUserById(id) {
     }
 }
 
-// Function to get all users (not used in the current controller)
+// Function to get all users
 async function getAllUsers() {
     const query = `SELECT * FROM user_admin WHERE del = 0`;
     try {
