@@ -1,13 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const apiRouter = require('./router/apiRouter'); // <-- ton fichier de routes
+const apiRouter = require('./router/apiRouter');
 
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Use rootes
-app.use('/api', apiRouter); // toutes les routes seront préfixées par /api
+app.use('/api', apiRouter);
 
 // Route racine
 app.get('/', (req, res) => {
