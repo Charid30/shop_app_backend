@@ -16,13 +16,27 @@ const pool = mysql.createPool({
 
 // Function to create a new user
 async function createUser(userData) {
-    const query = `INSERT INTO user_admin (username_admin, password_admin, del, identity_ididentity) VALUES (?, ?, 0, ?)`;
     try {
-        // Password hashing
+        // Verify if the username already exists
+        const checkQuery = `SELECT iduser_admin FROM user_admin WHERE username_admin = ? AND del = 0 LIMIT 1`;
+        const [rows] = await pool.query(checkQuery, [userData.username_admin]);
+
+        if (rows.length > 0) {
+            // This username already exists
+            return { success: false, message: "Le nom d'utilisateur existe déjà." };
+        }
+        // Hashing the password
         const hashedPassword = await bcrypt.hash(userData.password_admin, 12);
-        const [result] = await pool.query(query, [userData.username_admin, hashedPassword, userData.identity_ididentity]);
-        // Return the ID of the newly created user
-        return result.insertId;
+
+        // Insert the new user
+        const insertQuery = `INSERT INTO user_admin (username_admin, password_admin, del, identity_ididentity) VALUES (?, ?, 0, ?)`;
+        const [result] = await pool.query(insertQuery, [
+            userData.username_admin,
+            hashedPassword,
+            userData.identity_ididentity
+        ]);
+
+        return { success: true, insertId: result.insertId, message: "Utilisateur créé avec succès." };
     } catch (error) {
         throw error;
     }

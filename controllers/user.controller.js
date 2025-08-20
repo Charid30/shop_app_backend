@@ -130,6 +130,204 @@ async function authenticateUser(req, res) {
     }
 }
 
+// Reset user password by ID
+async function changeUserPassword(req, res) {
+    try {
+        const result = await userService.changeUserPassword(req.params.id, req.body.newPassword);
+        if (result === 0) return res.status(404).json({ message: "Utilisateur non trouvé" });
+        res.json({ message: "Mot de passe modifié avec succès" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Reset user password by username
+async function resetUserPassword(req, res) {
+    try {
+        const { username_admin, newPassword } = req.body;
+        const result = await userService.resetUserPassword(username_admin, newPassword);
+        if (result === 0) return res.status(404).json({ message: "Utilisateur non trouvé" });
+        res.json({ message: "Mot de passe réinitialisé avec succès" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get one user by username
+async function getUserByUsername(req, res) {
+    try {
+        const user = await userService.getUserByUsername(req.params.username);
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Pagination
+async function getUsersWithPagination(req, res) {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+        const users = await userService.getUsersWithPagination(limit, offset);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get all users number
+async function getTotalUserCount(req, res) {
+    try {
+        const count = await userService.getTotalUserCount();
+        res.json({ count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users if username exists
+async function doesUsernameExist(req, res) {
+    try {
+        const exists = await userService.doesUsernameExist(req.params.username);
+        res.json({ exists });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get user by identity ID
+async function getUserByIdentityId(req, res) {
+    try {
+        const users = await userService.getUserByIdentityId(req.params.identityId);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by role
+async function getUsersByRole(req, res) {
+    try {
+        const users = await userService.getUsersByRole(req.params.role);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by field
+async function getUsersByField(req, res) {
+    try {
+        const users = await userService.getUsersByField(req.params.field, req.params.value);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by status
+async function getUsersByStatus(req, res) {
+    try {
+        const users = await userService.getUsersByStatus(req.params.status);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by date range
+async function getUsersByDateRange(req, res) {
+    try {
+        const { startDate, endDate } = req.query;
+        const users = await userService.getUsersByDateRange(startDate, endDate);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by permission
+async function getUsersByPermission(req, res) {
+    try {
+        const users = await userService.getUsersByPermission(req.params.permission);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by attribute
+async function getUsersByAttribute(req, res) {
+    try {
+        const users = await userService.getUsersByAttribute(req.params.attribute, req.params.value);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by tag
+async function getUsersByTag(req, res) {
+    try {
+        const users = await userService.getUsersByTag(req.params.tag);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by role and status
+async function getUsersByRoleAndStatus(req, res) {
+    try {
+        const users = await userService.getUsersByRoleAndStatus(req.params.role, req.params.status);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by role and attribute
+async function getUsersByRoleAndAttribute(req, res) {
+    try {
+        const users = await userService.getUsersByRoleAndAttribute(req.params.role, req.params.attribute, req.params.value);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by role and tag
+async function getUsersByRoleAndTag(req, res) {
+    try {
+        const users = await userService.getUsersByRoleAndTag(req.params.role, req.params.tag);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by status and attribute
+async function getUsersByStatusAndAttribute(req, res) {
+    try {
+        const users = await userService.getUsersByStatusAndAttribute(req.params.status, req.params.attribute, req.params.value);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// Get users by status and tag
+// This function retrieves users based on their status and a specific tag.
+async function getUsersByStatusAndTag(req, res) {
+    try {
+        const users = await userService.getUsersByStatusAndTag(req.params.status, req.params.tag);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 // Export the user controller functions
 module.exports = {
     authenticateUser,
@@ -138,6 +336,25 @@ module.exports = {
     deleteUser,
     getUserById,
     getAllUsers,
-    getAllUsersWithPagination
+    getAllUsersWithPagination,
+    changeUserPassword,
+    resetUserPassword,
+    getUserByUsername,
+    getUsersWithPagination,
+    getTotalUserCount,
+    doesUsernameExist,
+    getUserByIdentityId,
+    getUsersByRole,
+    getUsersByField,
+    getUsersByStatus,
+    getUsersByDateRange,
+    getUsersByPermission,
+    getUsersByAttribute,
+    getUsersByTag,
+    getUsersByRoleAndStatus,
+    getUsersByRoleAndAttribute,
+    getUsersByRoleAndTag,
+    getUsersByStatusAndAttribute,
+    getUsersByStatusAndTag
 };
 // It is recommended to keep sensitive information out of version control.

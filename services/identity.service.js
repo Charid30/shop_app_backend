@@ -16,15 +16,29 @@ const pool = mysql.createPool({
 // This file contains the identity service functions for managing user identities.
 // Function to register a new identity for a user
 async function createIdentity(identityData) {
-    const query = `INSERT INTO identity (nom_admin, prenom_admin, email_admin, telephone_admin, del) VALUES (?, ?, ?, ?, 0)`;
+    // Vérification si email ou téléphone existe déjà
+    const checkQuery = `SELECT * FROM identity WHERE email_admin = ? OR telephone_admin = ? AND del = 0`;
+    const insertQuery = `INSERT INTO identity (nom_admin, prenom_admin, email_admin, telephone_admin, del) VALUES (?, ?, ?, ?, 0)`;
 
     try {
-        const [result] = await pool.query(query, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin]);
-        return result.insertId;
+        // Vérification existence
+        const [existing] = await pool.query(checkQuery, [identityData.email_admin, identityData.telephone_admin]);
+
+        if (existing.length > 0) {
+            // If found, return an error message
+            console.log("[createIdentity] Identity already exists:", existing);
+            return { error: "Cette identité existe déjà (email ou téléphone utilisé)" };
+        }
+        // If not found, insert the new identity
+        console.log("[createIdentity] Identity data:", identityData);
+        const [result] = await pool.query(insertQuery, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin]);
+        return { id: result.insertId, message: "Identité créée avec succès" };
     } catch (error) {
+        console.error("[createIdentity] Error:", error);
         throw error;
     }
 }
+
 
 // Function to modify an existing identity
 async function updateIdentity(id, identityData) {
