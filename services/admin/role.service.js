@@ -1,24 +1,13 @@
 // This is the role service file for managing user roles in the application.
-const db = require('../../config/config'); // Import the database configuration
-const mysql = require('mysql2');
+const admindb = require('../../config/config'); // Import the database configuration
 
-// Create a pool for managing database connections
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-}).promise();
-
+// This file contains the service functions for managing roles in the admin database.
 // Function to create a new role
 async function createRole(roleData) {
     // Vérifier si le rôle existe déjà
     const checkQuery = `SELECT * FROM role WHERE nom_role = ? OR acronyme_role = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(checkQuery, [roleData.nom_role, roleData.acronyme_role]);
+        const [rows] = await admindb.query(checkQuery, [roleData.nom_role, roleData.acronyme_role]);
         if (rows.length > 0) {
             // Log the existing role data for debugging
             console.log("[createRole] Role already exists:", rows);
@@ -28,7 +17,7 @@ async function createRole(roleData) {
         }
         // Sinon on l'insère
         const insertQuery = `INSERT INTO role (nom_role, acronyme_role, del) VALUES (?, ?, 0)`;
-        const [result] = await pool.query(insertQuery, [roleData.nom_role, roleData.acronyme_role]);
+        const [result] = await admindb.query(insertQuery, [roleData.nom_role, roleData.acronyme_role]);
         return { success: true, insertId: result.insertId, message: "Rôle créé avec succès !" };
     } catch (error) {
         console.error("[createRole] Error:", error);
@@ -42,7 +31,7 @@ async function updateRole(id, roleData) {
     console.log("[updateRole] ID:", id, "Data:", roleData);
 
     try {
-        const [result] = await pool.query(query, [roleData.nom_role, roleData.acronyme_role, id]);
+        const [result] = await admindb.query(query, [roleData.nom_role, roleData.acronyme_role, id]);
         console.log("[updateRole] Update result:", result);
         return result.affectedRows; // Return the number of affected rows
     } catch (error) {
@@ -57,7 +46,7 @@ async function deleteRole(id) {
     console.log("[deleteRole] ID:", id);
 
     try {
-        const [result] = await pool.query(query, [id]);
+        const [result] = await admindb.query(query, [id]);
         console.log("[deleteRole] Delete result:", result);
         return result.affectedRows;
     } catch (error) {
@@ -72,7 +61,7 @@ async function getRoleById(id) {
     console.log("[getRoleById] ID:", id);
 
     try {
-        const [rows] = await pool.query(query, [id]);
+        const [rows] = await admindb.query(query, [id]);
         console.log("[getRoleById] Rows:", rows);
         return rows[0];
     } catch (error) {
@@ -87,7 +76,7 @@ async function getAllRoles() {
     console.log("[getAllRoles] Fetching all roles...");
 
     try {
-        const [rows] = await pool.query(query);
+        const [rows] = await admindb.query(query);
         console.log("[getAllRoles] Rows fetched:", rows.length);
         return rows;
     } catch (error) {

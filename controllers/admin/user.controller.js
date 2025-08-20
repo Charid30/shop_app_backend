@@ -8,7 +8,7 @@ async function createUser(req, res) {
     try {
         const userData = req.body;
         // Basic validation
-        if (!userData.username_admin || !userData.password_admin || !userData.identity_ididentity) {
+        if (!userData.username_admin || !userData.password_admin) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         const userId = await userService.createUser(userData);
@@ -30,7 +30,7 @@ async function modifyUser(req, res) {
         const userData = req.body;
 
         // Basic validation
-        if (!userData.username_admin || !userData.password_admin || !userData.identity_ididentity) {
+        if (!userData.username_admin || !userData.password_admin) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         const affectedRows = await userService.updateUser(id, userData);
@@ -99,7 +99,6 @@ async function getAllUsersWithPagination(req, res) {
         const page = parseInt(req.query.page) || 1; // Current page number
         const limit = parseInt(req.query.limit) || 10; // Number of users per page
         const offset = (page - 1) * limit; // Calculate offset for pagination
-
         const users = await userService.getAllUsersWithPagination(limit, offset);
         res.status(200).json(users);
     } catch (error) {
@@ -113,7 +112,7 @@ async function authenticateUser(req, res) {
     try {
         const { username_admin, password_admin } = req.body;
         if (!username_admin || !password_admin) {
-            return res.status(400).json({ error: 'Username and password are required' });
+            return res.status(400).json({ error: 'Username or password are wrong' });
         }
         const user = await userService.authenticateUser(username_admin, password_admin);
         if (!user) {

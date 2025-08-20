@@ -1,25 +1,16 @@
 // This is the user service file for handling user-related operations for authentication and user management.
-const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
-const { admindb } = require('../../config/config');
 
-// Create a pool for managing database connections
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+// This file contains the user service functions for managing users.
+// Function to get the database connection pool
+const { admindb } = require('../../config/config');
 
 // Function to create a new user
 async function createUser(userData) {
     try {
         // Verify if the username already exists
         const checkQuery = `SELECT iduser_admin FROM user_admin WHERE username_admin = ? AND del = 0 LIMIT 1`;
-        const [rows] = await pool.query(checkQuery, [userData.username_admin]);
+        const [rows] = await admindb.query(checkQuery, [userData.username_admin]);
 
         if (rows.length > 0) {
             // This username already exists
@@ -29,11 +20,10 @@ async function createUser(userData) {
         const hashedPassword = await bcrypt.hash(userData.password_admin, 12);
 
         // Insert the new user
-        const insertQuery = `INSERT INTO user_admin (username_admin, password_admin, del, identity_ididentity) VALUES (?, ?, 0, ?)`;
-        const [result] = await pool.query(insertQuery, [
+        const insertQuery = `INSERT INTO user_admin (username_admin, password_admin, del) VALUES (?, ?, 0)`;
+        const [result] = await admindb.query(insertQuery, [
             userData.username_admin,
             hashedPassword,
-            userData.identity_ididentity
         ]);
 
         return { success: true, insertId: result.insertId, message: "Utilisateur créé avec succès." };
@@ -48,7 +38,7 @@ async function updateUser(id, userData) {
     try {
         // Password hashing
         const hashedPassword = await bcrypt.hash(userData.password_admin, 12);
-        const [result] = await pool.query(query, [userData.username_admin, hashedPassword, id]);
+        const [result] = await admindb.query(query, [userData.username_admin, hashedPassword, id]);
         // Return the number of affected rows
         return result.affectedRows;
     } catch (error) {
@@ -60,7 +50,7 @@ async function updateUser(id, userData) {
 async function deleteUser(id) {
     const query = `UPDATE user_admin SET del = 1 WHERE id = ?`;
     try {
-        const [result] = await pool.query(query, [id]);
+        const [result] = await admindb.query(query, [id]);
         return result.affectedRows;
     } catch (error) {
         throw error;
@@ -71,7 +61,7 @@ async function deleteUser(id) {
 async function getUserById(id) {
     const query = `SELECT * FROM user_admin WHERE id = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [id]);
+        const [rows] = await admindb.query(query, [id]);
         return rows[0]; // Return the first row if found
     } catch (error) {
         throw error;
@@ -82,7 +72,7 @@ async function getUserById(id) {
 async function getAllUsers() {
     const query = `SELECT * FROM user_admin WHERE del = 0`;
     try {
-        const [rows] = await pool.query(query);
+        const [rows] = await admindb.query(query);
         return rows; // Return all users
     } catch (error) {
         throw error;
@@ -93,7 +83,7 @@ async function getAllUsers() {
 async function authenticateUser(username, password) {
     const query = `SELECT * FROM user_admin WHERE username_admin = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [username]);
+        const [rows] = await admindb.query(query, [username]);
         if (rows.length === 0) {
             throw new Error('User not found');
         }
@@ -115,7 +105,7 @@ async function changeUserPassword(id, newPassword) {
     try {
         // Password hashing
         const hashedPassword = await bcrypt.hash(newPassword, 12);
-        const [result] = await pool.query(query, [hashedPassword, id]);
+        const [result] = await admindb.query(query, [hashedPassword, id]);
         // Return the number of affected rows
         return result.affectedRows;
     } catch (error) {
@@ -129,7 +119,7 @@ async function resetUserPassword(username, newPassword) {
     try {
         // Password hashing
         const hashedPassword = await bcrypt.hash(newPassword, 12);
-        const [result] = await pool.query(query, [hashedPassword, username]);
+        const [result] = await admindb.query(query, [hashedPassword, username]);
         // Return the number of affected rows
         return result.affectedRows;
     } catch (error) {
@@ -141,7 +131,7 @@ async function resetUserPassword(username, newPassword) {
 async function getUserByUsername(username) {
     const query = `SELECT * FROM user_admin WHERE username_admin = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [username]);
+        const [rows] = await admindb.query(query, [username]);
         return rows[0]; // Return the first row if found
     } catch (error) {
         throw error;
@@ -152,7 +142,7 @@ async function getUserByUsername(username) {
 async function getUsersWithPagination(limit, offset) {
     const query = `SELECT * FROM user_admin WHERE del = 0 LIMIT ? OFFSET ?`;
     try {
-        const [rows] = await pool.query(query, [limit, offset]);
+        const [rows] = await admindb.query(query, [limit, offset]);
         return rows; // Return the paginated users
     } catch (error) {
         throw error;
@@ -163,7 +153,7 @@ async function getUsersWithPagination(limit, offset) {
 async function getTotalUserCount() {
     const query = `SELECT COUNT(*) AS count FROM user_admin WHERE del = 0`;
     try {
-        const [rows] = await pool.query(query);
+        const [rows] = await admindb.query(query);
         return rows[0].count; // Return the total count of users
     } catch (error) {
         throw error;
@@ -174,7 +164,7 @@ async function getTotalUserCount() {
 async function doesUsernameExist(username) {
     const query = `SELECT COUNT(*) AS count FROM user_admin WHERE username_admin = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [username]);
+        const [rows] = await admindb.query(query, [username]);
         return rows[0].count > 0; // Return true if the username exists
     } catch (error) {
         throw error;
@@ -185,7 +175,7 @@ async function doesUsernameExist(username) {
 async function getUserByIdentityId(identityId) {
     const query = `SELECT * FROM user_admin WHERE identity_ididentity = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [identityId]);
+        const [rows] = await admindb.query(query, [identityId]);
         return rows; // Return the users associated with the given identity ID
     } catch (error) {
         throw error;
@@ -196,7 +186,7 @@ async function getUserByIdentityId(identityId) {
 async function getUsersByRole(role) {
     const query = `SELECT * FROM user_admin WHERE role = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [role]);
+        const [rows] = await admindb.query(query, [role]);
         return rows; // Return the users with the specified role
     } catch (error) {
         throw error;
@@ -207,7 +197,7 @@ async function getUsersByRole(role) {
 async function getUsersByField(field, value) {
     const query = `SELECT * FROM user_admin WHERE ?? = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [field, value]);
+        const [rows] = await admindb.query(query, [field, value]);
         return rows; // Return the users matching the specified field and value
     } catch (error) {
         throw error;
@@ -218,7 +208,7 @@ async function getUsersByField(field, value) {
 async function getUsersByStatus(status) {
     const query = `SELECT * FROM user_admin WHERE status = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [status]);
+        const [rows] = await admindb.query(query, [status]);
         return rows; // Return the users with the specified status
     } catch (error) {
         throw error;
@@ -229,7 +219,7 @@ async function getUsersByStatus(status) {
 async function getUsersByDateRange(startDate, endDate) {
     const query = `SELECT * FROM user_admin WHERE created_at BETWEEN ? AND ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [startDate, endDate]);
+        const [rows] = await admindb.query(query, [startDate, endDate]);
         return rows; // Return the users created within the specified date range
     } catch (error) {
         throw error;
@@ -240,7 +230,7 @@ async function getUsersByDateRange(startDate, endDate) {
 async function getUsersByPermission(permission) {
     const query = `SELECT * FROM user_admin WHERE permissions LIKE ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [`%${permission}%`]);
+        const [rows] = await admindb.query(query, [`%${permission}%`]);
         return rows; // Return the users with the specified permission
     } catch (error) {
         throw error;
@@ -251,7 +241,7 @@ async function getUsersByPermission(permission) {
 async function getUsersByAttribute(attribute, value) {
     const query = `SELECT * FROM user_admin WHERE ?? = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [attribute, value]);
+        const [rows] = await admindb.query(query, [attribute, value]);
         return rows; // Return the users matching the specified attribute and value
     } catch (error) {
         throw error;
@@ -262,7 +252,7 @@ async function getUsersByAttribute(attribute, value) {
 async function getUsersByTag(tag) {
     const query = `SELECT * FROM user_admin WHERE tags LIKE ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [`%${tag}%`]);
+        const [rows] = await admindb.query(query, [`%${tag}%`]);
         return rows; // Return the users with the specified tag
     } catch (error) {
         throw error;
@@ -273,7 +263,7 @@ async function getUsersByTag(tag) {
 async function getUsersByRoleAndStatus(role, status) {
     const query = `SELECT * FROM user_admin WHERE role = ? AND status = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [role, status]);
+        const [rows] = await admindb.query(query, [role, status]);
         return rows; // Return the users with the specified role and status
     } catch (error) {
         throw error;
@@ -284,7 +274,7 @@ async function getUsersByRoleAndStatus(role, status) {
 async function getUsersByRoleAndAttribute(role, attribute, value) {
     const query = `SELECT * FROM user_admin WHERE role = ? AND ?? = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [role, attribute, value]);
+        const [rows] = await admindb.query(query, [role, attribute, value]);
         return rows; // Return the users with the specified role and attribute
     } catch (error) {
         throw error;
@@ -295,7 +285,7 @@ async function getUsersByRoleAndAttribute(role, attribute, value) {
 async function getUsersByRoleAndTag(role, tag) {
     const query = `SELECT * FROM user_admin WHERE role = ? AND tags LIKE ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [role, `%${tag}%`]);
+        const [rows] = await admindb.query(query, [role, `%${tag}%`]);
         return rows; // Return the users with the specified role and tag
     } catch (error) {
         throw error;
@@ -306,7 +296,7 @@ async function getUsersByRoleAndTag(role, tag) {
 async function getUsersByStatusAndAttribute(status, attribute, value) {
     const query = `SELECT * FROM user_admin WHERE status = ? AND ?? = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [status, attribute, value]);
+        const [rows] = await admindb.query(query, [status, attribute, value]);
         return rows; // Return the users with the specified status and attribute
     } catch (error) {
         throw error;
@@ -317,7 +307,7 @@ async function getUsersByStatusAndAttribute(status, attribute, value) {
 async function getUsersByStatusAndTag(status, tag) {
     const query = `SELECT * FROM user_admin WHERE status = ? AND tags LIKE ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [status, `%${tag}%`]);
+        const [rows] = await admindb.query(query, [status, `%${tag}%`]);
         return rows; // Return the users with the specified status and tag
     } catch (error) {
         throw error;

@@ -2,17 +2,6 @@
 const mysql = require('mysql2');
 const { admindb } = require('../../config/config');
 
-// Create pool for managing database connections (using promise wrapper)
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-}).promise();
-
 // This file contains the identity service functions for managing user identities.
 // Function to register a new identity for a user
 async function createIdentity(identityData) {
@@ -22,7 +11,7 @@ async function createIdentity(identityData) {
 
     try {
         // Vérification existence
-        const [existing] = await pool.query(checkQuery, [identityData.email_admin, identityData.telephone_admin]);
+        const [existing] = await admindb.query(checkQuery, [identityData.email_admin, identityData.telephone_admin]);
 
         if (existing.length > 0) {
             // If found, return an error message
@@ -31,7 +20,7 @@ async function createIdentity(identityData) {
         }
         // If not found, insert the new identity
         console.log("[createIdentity] Identity data:", identityData);
-        const [result] = await pool.query(insertQuery, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin]);
+        const [result] = await admindb.query(insertQuery, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin]);
         return { id: result.insertId, message: "Identité créée avec succès" };
     } catch (error) {
         console.error("[createIdentity] Error:", error);
@@ -44,7 +33,7 @@ async function createIdentity(identityData) {
 async function updateIdentity(id, identityData) {
     const query = `UPDATE identity SET nom_admin = ?, prenom_admin = ?, email_admin = ?, telephone_admin = ? WHERE id = ? AND del = 0`;
     try {
-        const [result] = await pool.query(query, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin, id]);
+        const [result] = await admindb.query(query, [identityData.nom_admin, identityData.prenom_admin, identityData.email_admin, identityData.telephone_admin, id]);
         // Nombre de lignes modifiées
         return result.affectedRows;
     } catch (error) {
@@ -56,7 +45,7 @@ async function updateIdentity(id, identityData) {
 async function deleteIdentity(id) {
     const query = `UPDATE identity SET del = 1 WHERE id = ?`;
     try {
-        const [result] = await pool.query(query, [id]);
+        const [result] = await admindb.query(query, [id]);
         return result.affectedRows;
     } catch (error) {
         throw error;
@@ -67,7 +56,7 @@ async function deleteIdentity(id) {
 async function getIdentityById(id) {
     const query = `SELECT * FROM identity WHERE id = ? AND del = 0`;
     try {
-        const [rows] = await pool.query(query, [id]);
+        const [rows] = await admindb.query(query, [id]);
         return rows[0]; // Return the first row if found
     } catch (error) {
         throw error;
@@ -78,7 +67,7 @@ async function getIdentityById(id) {
 async function getAllIdentities() {
     const query = `SELECT * FROM identity WHERE del = 0`;
     try {
-        const [rows] = await pool.query(query);
+        const [rows] = await admindb.query(query);
         return rows; // Return all identities
     } catch (error) {
         throw error;

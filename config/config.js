@@ -1,60 +1,116 @@
-//  CONFIGURATION FILE FOR A NODEJS APPLICATION
-// This file contains the configuration settings for the application.
-// It is used to set up environment variables, database connections, and other settings.
-// It is recommended to keep sensitive information out of version control.
-
+// config/config.js
+// This file contains the configuration for database connections.
+// It exports the database connection pools for admin and user databases.
 require('dotenv').config();
-const mysql = require('mysql2');
+// Use mysql2 with promises for better async/await support
+const mysql = require('mysql2/promise');
 
-// MySQL configuration for different databases
-// First database connection
-const admindb = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE
+// Connexion Admin DB
+const admindb = mysql.createPool({
+  host: process.env.ADMIN_DB_HOST,
+  user: process.env.ADMIN_DB_USER,
+  password: process.env.ADMIN_DB_PASSWORD,
+  database: process.env.ADMIN_DB_DATABASE,
+  connectionLimit: parseInt(process.env.MYSQL_POOL_CONNECTION_LIMIT, 10) || 10,
+  waitForConnections: process.env.MYSQL_POOL_WAIT_FOR_CONNECTION === 'true',
+  connectTimeout: parseInt(process.env.MYSQL_POOL_CONNECTION_TIMEOUT, 10) || 10000,
+  // Additional options can be added here if needed
+  // For example, you can set charset, timezone, etc.
+  charset: 'utf8mb4',
+  timezone: 'UTC',
+  queueLimit: parseInt(process.env.MYSQL_POOL_QUEUE_LIMIT, 10) || 0,
+  // This allows the pool to handle more connections and manage them efficiently
+  // Adjust these settings based on your application's needs
+  debug: process.env.MYSQL_DEBUG === 'true', // Enable debug mode if needed
+  supportBigNumbers: true, // Support for big numbers
+  bigNumberStrings: true, // Return big numbers as strings
+  multipleStatements: process.env.MYSQL_MULTIPLE_STATEMENTS === 'true', // Allow multiple statements in a single query
+  dateStrings: true, // Return date fields as strings
+  insecureAuth: process.env.MYSQL_INSECURE_AUTH === 'true', // Allow insecure authentication if needed
+  trace: process.env.MYSQL_TRACE === 'true', // Enable tracing for debugging
+  typeCast: (field, next) => {
+    if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+      return field.string(); // Return date fields as strings
+    }
+    return next();
+  },
+  // This allows for custom type casting of fields, especially for date and time fields
+  // Adjust these settings based on your application's needs
+  namedPlaceholders: true, // Use named placeholders for queries
+  // This allows for named placeholders in queries, making them more readable
+  rowsAsArray: process.env.MYSQL_ROWS_AS_ARRAY === 'true', // Return rows as arrays
+  // This allows for returning rows as arrays instead of objects, which can be useful in some cases
+  connectionLimit: parseInt(process.env.MYSQL_POOL_CONNECTION_LIMIT, 10) || 10, // Limit the number of connections in the pool
+  // This sets the maximum number of connections in the pool, preventing overload
 });
 
-// Second database connection
-// const usersdb = mysql.createConnection({
-//   host: process.env.PG_HOST,
-//   user: process.env.PG_USER,
-//   password: process.env.PG_PASSWORD,
-//   database: process.env.PG_DATABASE
-// });
+// Connexion Users DB
+const usersdb = mysql.createPool({
+  host: process.env.USERS_DB_HOST,
+  user: process.env.USERS_DB_USER,
+  password: process.env.USERS_DB_PASSWORD,
+  database: process.env.USERS_DB_DATABASE,
+  connectionLimit: parseInt(process.env.MYSQL_POOL_CONNECTION_LIMIT, 10) || 10,
+  waitForConnections: process.env.MYSQL_POOL_WAIT_FOR_CONNECTION === 'true',
+  connectTimeout: parseInt(process.env.MYSQL_POOL_CONNECTION_TIMEOUT, 10) || 10000,
+  // Additional options can be added here if needed
+  // For example, you can set charset, timezone, etc.
+  charset: 'utf8mb4',
+  timezone: 'UTC',
+  queueLimit: parseInt(process.env.MYSQL_POOL_QUEUE_LIMIT, 10) || 0,
+  // This allows the pool to handle more connections and manage them efficiently
+  debug: process.env.MYSQL_DEBUG === 'true', // Enable debug mode if needed
+  supportBigNumbers: true, // Support for big numbers
+  bigNumberStrings: true, // Return big numbers as strings
+  multipleStatements: process.env.MYSQL_MULTIPLE_STATEMENTS === 'true', // Allow multiple statements in a single query
+  dateStrings: true, // Return date fields as strings
+  insecureAuth: process.env.MYSQL_INSECURE_AUTH === 'true', // Allow insecure authentication if needed
+  trace: process.env.MYSQL_TRACE === 'true', // Enable tracing for debugging
+  typeCast: (field, next) => {
+    if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+      return field.string(); // Return date fields as strings
+    }
+    return next();
+  },
+  namedPlaceholders: true, // Use named placeholders for queries
+  rowsAsArray: process.env.MYSQL_ROWS_AS_ARRAY === 'true', // Return rows as arrays
+  connectionLimit: parseInt(process.env.MYSQL_POOL_CONNECTION_LIMIT, 10) || 10, // Limit the number of connections in the pool
+  // This sets the maximum number of connections in the pool, preventing overload
+  // This allows for custom type casting of fields, especially for date and time fields
+  // Adjust these settings based on your application's needs
+  // This allows for named placeholders in queries, making them more readable
+  // This allows for returning rows as arrays instead of objects, which can be useful in some cases
+  // This allows the pool to handle more connections and manage them efficiently
+  // Adjust these settings based on your application's needs
+  // This sets the maximum number of connections in the pool, preventing overload
+  // Adjust these settings based on your application's needs
+  // This allows for custom type casting of fields, especially for date and time fields
+});
 
-// Export the connections for use in other parts of the application
+// Test connexion adminDb
+admindb.getConnection()
+  .then(conn => {
+    console.log("---------->Connected to Admin DB");
+    conn.release();
+  })
+  .catch(err => {
+    console.error("------X---->Error connecting to Admin DB:", err);
+  });
+
+// Test connexion usersDb
+usersdb.getConnection()
+  .then(conn => {
+    console.log("---------->Connected to Users DB");
+    conn.release();
+  })
+  .catch(err => {
+    console.error("------X---->Error connecting to Users DB:", err);
+  });
+
+// This code exports the database connection pools for admin and user databases.
+// This allows other modules to use these connections for database operations.
+// Exporting the connection pools for admin and user databases
 module.exports = {
   admindb,
-//   usersdb,
+  usersdb,
 };
-
-// Try first database connection
-admindb.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL database:', err);
-  } else {
-    console.log('Connected to MySQL database');
-  }
-});
-
-// Try second database connection
-// usersdb.connect((err) => {
-//   if (err) {
-//     console.error('Error connecting to users database:', err);
-//   } else {
-//     console.log('Connected to users database');
-//   }
-// });
-
-// Environment variables for MySQL
-// These variables should be set in a .env file or through the environment directly
-// MYSQL_HOST: Host for MySQL database
-// MYSQL_USER: Username for MySQL database
-// MYSQL_PASSWORD: Password for MySQL database
-// MYSQL_DATABASE: Name of the MySQL database
-// PG_HOST: Host for PostgreSQL database
-// PG_USER: Username for PostgreSQL database
-// PG_PASSWORD: Password for PostgreSQL database
-// PG_DATABASE: Name of the PostgreSQL database
-// PG_PORT: Port for PostgreSQL database (default is 5432)
