@@ -1,5 +1,5 @@
 // This file is part of the articles controller for managing articles.
-const articlesService = require('../services/articles.service');
+const articlesService = require('../../services/admin/articles.service');
 
 // Function to handle the creation of a new article
 async function createArticle(req, res) {

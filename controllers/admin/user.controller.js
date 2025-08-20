@@ -1,7 +1,7 @@
 // This file contains the configuration settings for the application.
 // It is used to set up environment variables, database connections, and other settings.
 
-const userService = require('../services/user.service');
+const userService = require('../../services/admin/user.service');
 
 // Controller to create a new user_admin
 async function createUser(req, res) {

@@ -1,6 +1,6 @@
 // This section of the code is responsible for managing user identities for all users in the application.
 const mysql = require('mysql2');
-const { admindb } = require('../config/config');
+const { admindb } = require('../../config/config');
 
 // Create pool for managing database connections (using promise wrapper)
 const pool = mysql.createPool({

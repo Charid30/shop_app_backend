@@ -1,5 +1,5 @@
 // This file contains the role controller for managing roles in the application.
-const roleService = require('../services/role.service');
+const roleService = require('../../services/admin/role.service');
 // Function to handle the creation of a new role
 async function createRole(req, res) {
     try {

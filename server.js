@@ -7,7 +7,6 @@ const apiRouter = require('./router/apiRouter');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // Use rootes
 app.use('/api', apiRouter);
 

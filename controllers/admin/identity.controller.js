@@ -1,7 +1,7 @@
 // controllers/identity.controller.js
 // This file contains the identity controller functions for managing user identities.
 // This is the identity controller for the identity service file.
-const identityService = require('../services/identity.service');
+const identityService = require('../../services/admin/identity.service');
 
 // Function to handle the creation of a new identity
 async function createIdentity(req, res) {

@@ -1,7 +1,7 @@
 // This is the user service file for handling user-related operations for authentication and user management.
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
-const { admindb } = require('../config/config');
+const { admindb } = require('../../config/config');
 
 // Create a pool for managing database connections
 const pool = mysql.createPool({

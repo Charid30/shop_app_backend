@@ -3,11 +3,11 @@ const express = require('express');
 const apiRouter = express.Router();
 
 //------------------------------------> Import controllers <------------------------------------//
-const identityController = require('../controllers/identity.controller');
-const userController = require('../controllers/user.controller');
-const roleController = require('../controllers/role.controller');
-const articlesController = require('../controllers/articles.controller');
-const boutiqueController = require('../controllers/boutique.controller');
+const identityController = require('../controllers/admin/identity.controller');
+const userController = require('../controllers/admin/user.controller');
+const roleController = require('../controllers/admin/role.controller');
+const articlesController = require('../controllers/admin/articles.controller');
+const boutiqueController = require('../controllers/admin/boutique.controller');
 
 
 //------------------------------------> Identity routes <------------------------------------//

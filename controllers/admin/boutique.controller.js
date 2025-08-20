@@ -1,5 +1,5 @@
 // This file is part of the boutique controller for managing boutiques.
-const boutiqueService = require('../services/boutique.service');
+const boutiqueService = require('../../services/admin/boutique.service');
 
 // Function to handle the creation of a new boutique
 async function createBoutique(req, res) {

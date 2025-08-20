@@ -1,5 +1,5 @@
 // This is the role service file for managing user roles in the application.
-const db = require('../config/config'); // Import the database configuration
+const db = require('../../config/config'); // Import the database configuration
 const mysql = require('mysql2');
 
 // Create a pool for managing database connections

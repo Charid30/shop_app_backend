@@ -3,7 +3,7 @@
 
 // This code is part of the articles service file.
 const mysql = require('mysql2');
-const { admindb } = require('../config/config');
+const { admindb } = require('../../config/config');
 // Create a pool for managing database connections
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
